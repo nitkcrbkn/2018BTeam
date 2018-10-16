@@ -11,8 +11,11 @@
  */
 #include "DD_ENCODER.h"
 
+
 static int32_t encval1 = 0;
 static int32_t encval2 = 0;
+extern int32_t encoder_load;
+extern int32_t encoder_throw;
 
 int DD_InitEncoder1(void){
   return MW_EncoderInit(ENCODER1ID);
@@ -45,7 +48,7 @@ int32_t DD_encoder2Get_int32(void){
 }
 
 int DD_encoderprint(void){
-  MW_printf("ENC[%5d][%5d]\n",encval1,encval2);
+  MW_printf("ENC[%5d][%5d]",encval1,encval2);
   return EXIT_SUCCESS;
 }
     

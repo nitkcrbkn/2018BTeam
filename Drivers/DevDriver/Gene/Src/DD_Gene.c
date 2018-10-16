@@ -19,6 +19,7 @@
 #include "DD_SS.h"
 #include "DD_ENCODER.h"
 #include "message.h"
+#include "SystemTaskManager.h"
 
 /*I2Cのサポート用関数*/
 int DD_I2C1Send(uint8_t add, const uint8_t *data, uint8_t size){
@@ -72,17 +73,21 @@ int DD_doTasks(void){
 #endif
 #if DD_NUM_OF_SS
   for(i=0; i<DD_NUM_OF_SS; i++){
-    ret = DD_receive2SS(&g_ss_h[i]);
+    ret = DD_SSPutReceiveRequest(i);
     if( ret ){
       return ret;
     }
+  }
+  ret = DD_receive2SS();
+  if( ret ){
+      return ret;
   }
 #endif
 #if DD_USE_ENCODER1
   ret = DD_encoder1update();
   if( ret ){
       return ret;
-    }
+  }
 #endif
 #if DD_USE_ENCODER2
   ret = DD_encoder2update();
@@ -123,7 +128,8 @@ void DD_print(void){
 /*初期化関数*/
 int DD_initialize(void){
   int ret;
-  
+  int i;
+
   /* Initialize all configured peripherals */
   MW_SetI2CClockSpeed(I2C1ID, _I2C_SPEED_BPS);
   ret = MW_I2CInit(I2C1ID);
@@ -159,6 +165,14 @@ int DD_initialize(void){
   ret = SV_Init(&g_sv_h);
   if( ret ){
     return EXIT_FAILURE;
+  }
+#endif
+#if DD_NUM_OF_SS
+  for(i=0; i<DD_NUM_OF_SS; i++){
+    ret = SS_Init(&g_ss_h[i]);
+    if( ret ){
+      return EXIT_FAILURE;
+    }
   }
 #endif
   
